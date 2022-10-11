@@ -774,7 +774,7 @@ describe('Client', function () {
   it('removes subscription when it unsubscribes from it', function () {
     const client = new SubscriptionClient(`ws://localhost:${TEST_PORT}/`);
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       let sub = client.request({
         query: `subscription useInfo($id: String) {
           user(id: $id) {
@@ -792,7 +792,7 @@ describe('Client', function () {
           try {
             sub.unsubscribe();
             expect(Object.keys(client.operations).length).to.equals(0);
-            resolve(undefined);
+            resolve();
           } catch (e) {
             reject(e);
           }
@@ -2643,7 +2643,7 @@ describe('Client<->Server Flow', () => {
               assert(sRes.errors === undefined, 'unexpected error from 1st subscription');
               assert(sRes.data, 'unexpected null from 1st subscription result');
               expect(Object.keys(client['operations']).length).to.eq(1);
-              expect(sRes.data.user).to.include({ id: '3' });
+              expect(sRes.data.user.id).to.eq('3');
               firstSubscriptionSpy();
 
               firstSub.unsubscribe();
@@ -2660,7 +2660,7 @@ describe('Client<->Server Flow', () => {
                   next: (s2Res) => {
                     assert(s2Res.errors === undefined, 'unexpected error from 2nd subscription');
                     assert(s2Res.data !== null, 'unexpected null from 2nd subscription result');
-                    expect(s2Res.data.user).to.include({ id: '1' });
+                    expect(s2Res.data.user.id).to.eq('1');
                     expect(Object.keys(client['operations']).length).to.eq(1);
                     expect(firstSubscriptionSpy.callCount).to.eq(1);
 
