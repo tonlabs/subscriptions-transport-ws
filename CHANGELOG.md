@@ -1,8 +1,8 @@
 # Changelog
 
-## v0.10.0 (2021-06-08)
+## v0.9.20 (2022-10-11)
 
-- Same contents as v0.9.19 (published before v0.9.19 before realizing it would be helpful if the new version was picked up by packages looking for `^0.9`).
+- Fixed a possible memory leak if the client constantly sends WS queries without sending a "stop" message.
 
 ## v0.9.19 (2021-06-08)
 

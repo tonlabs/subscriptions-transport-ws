@@ -774,7 +774,7 @@ describe('Client', function () {
   it('removes subscription when it unsubscribes from it', function () {
     const client = new SubscriptionClient(`ws://localhost:${TEST_PORT}/`);
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       let sub = client.request({
         query: `subscription useInfo($id: String) {
           user(id: $id) {

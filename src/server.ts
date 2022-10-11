@@ -406,14 +406,23 @@ export class SubscriptionServer {
 
                   this.sendError(connectionContext, opId, error);
                 });
-
-              return executionIterable;
-            }).then((subscription: ExecutionIterator) => {
-              connectionContext.operations[opId] = subscription;
-            }).then(() => {
-              // NOTE: This is a temporary code to support the legacy protocol.
-              // As soon as the old protocol has been removed, this coode should also be removed.
-              this.sendMessage(connectionContext, opId, MessageTypes.SUBSCRIPTION_SUCCESS, undefined);
+              return  [ executionIterable, params ];
+            }).then(([ subscription, params ]: [ subscription: ExecutionIterator, params: ExecutionParams ]) => {
+               connectionContext.operations[opId] = subscription;
+               return params;
+            }).then((params) => {
+               // NOTE: This is a temporary code to support the legacy protocol.
+               // As soon as the old protocol has been removed, this coode should also be removed.
+               this.sendMessage(connectionContext, opId, MessageTypes.SUBSCRIPTION_SUCCESS, undefined);
+              // Fix:
+              // If the client did not send a GQL_STOP message,
+              // its work will forever remain in the connectionContext and a memory leak will occur.
+              // We immediately delete operation from connectionContext if it is not Subscription.
+              if ( typeof params.query === 'string') {
+                if (!params.query.startsWith('subscription'))  {
+                  this.unsubscribe(connectionContext, opId);
+                }
+              }
             }).catch((e: any) => {
               if (e.errors) {
                 this.sendMessage(connectionContext, opId, MessageTypes.GQL_DATA, { errors: e.errors });
